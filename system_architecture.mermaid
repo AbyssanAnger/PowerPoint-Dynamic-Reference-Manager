@@ -1,0 +1,65 @@
+flowchart TB
+    subgraph UI [User Interface]
+        Start([Start Add-In])
+        BtnUpdate[Button: Update References]
+        BtnReset[Button: Reset History]
+    end
+
+    subgraph Core [Main Logic UpdateReferences]
+        Init[Initialize Variables]
+        LoadBib{Bib File Selected?}
+        ParseBib[Parse .bib File\n(Regex: @article, @book...)]
+        LoadRegistry[Build Source Registry\n(Dictionary)]
+        
+        LoopSlides[Loop All Slides]
+        FindCites[Find Citations\nRegex: \[Key\]]
+        
+        CheckPersist{Persistence Check}
+        IsStored[Key stored in Tags?]
+        GetStored[Get Stored Number]
+        NewNum[Assign New Number]
+        StoreTag[Save to PPT Tags\n(BIB_REF_Key = Num)]
+        
+        ReplaceText[Replace Text\n[Key] -> [1]]
+        
+        GenBib[Generate Bibliography Slide]
+        CalcOrder[Sort by Reference Number]
+        FormatText[Format Output Text]
+    end
+
+    subgraph ResetLogic [Reset Module]
+        Confirm[User Confirmation]
+        DeleteTags[Delete All BIB_REF_ Tags]
+        MsgSuccess[Show Success Msg]
+    end
+
+    %% Connections
+    Start --> BtnUpdate
+    Start --> BtnReset
+
+    BtnUpdate --> Init
+    Init --> LoadBib
+    LoadBib -- Yes --> ParseBib
+    LoadBib -- No --> End([End])
+    ParseBib --> LoadRegistry
+    LoadRegistry --> LoopSlides
+    LoopSlides --> FindCites
+    
+    FindCites --> CheckPersist
+    CheckPersist -- Yes --> IsStored
+    IsStored -- Yes --> GetStored
+    IsStored -- No --> NewNum
+    NewNum --> StoreTag
+    StoreTag --> ReplaceText
+    GetStored --> ReplaceText
+    
+    ReplaceText --> LoopSlides
+    LoopSlides -- Done --> GenBib
+    GenBib --> CalcOrder
+    CalcOrder --> FormatText
+    FormatText --> End
+
+    BtnReset --> Confirm
+    Confirm -- Yes --> DeleteTags
+    DeleteTags --> MsgSuccess
+    Confirm -- No --> End
