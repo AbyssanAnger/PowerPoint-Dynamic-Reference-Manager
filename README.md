@@ -1,80 +1,80 @@
-# PowerPoint VBA Reference Manager - Anleitung
+# PowerPoint VBA Reference Manager - User Guide
 
 ## Installation
 
-1. **PowerPoint öffnen** und Ihre Präsentation laden
-2. **VBA-Editor öffnen**: Drücken Sie `Alt + F11`
-3. **Modul importieren**:
-   - `Datei` → `Datei importieren...`
-   - Wählen Sie `ReferenceManager.bas`
-   - Klicken Sie auf `Öffnen`
+1. **Open PowerPoint** and load your presentation.
+2. **Open VBA Editor**: Press `Alt + F11`.
+3. **Import Module**:
+   - `File` → `Import File...`
+   - Select `ReferenceManager.bas`
+   - Click `Open`
 
-## Verwendung
+## Usage
 
-### Schritt 1: Quellen laden
+### Step 1: Load Sources
 
-1. Wenn Sie das Makro starten, öffnet sich automatisch ein Datei-Dialog.
-2. Wählen Sie Ihre `.bib` Datei aus (z.B. aus Zotero/Citavi exportiert).
-3. Alternativ können Sie die mitgelieferte `test_references.bib` zum Testen verwenden.
+1. When you start the macro, a file dialog will open automatically.
+2. Select your `.bib` file (e.g., exported from Zotero/Citavi).
+3. Alternatively, you can use the included `test_references.bib` for testing.
 
-> **Hinweis**: Falls Sie keine Datei auswählen, bleibt die Literaturliste leer.
+> **Note**: If you do not select a file, the bibliography will remain empty.
 
-### Schritt 2: Zitationen in Folien einfügen
+### Step 2: Insert Citations into Slides
 
-Fügen Sie in Ihren PowerPoint-Folien Zitationen im Format `[Key]` ein, wobei `Key` dem Schlüssel in Ihrer BibTeX-Datei entspricht:
+Insert citations in your PowerPoint slides using the format `[Key]`, where `Key` corresponds to the citation key in your BibTeX file:
 
-**Beispiel:**
+**Example:**
 ```
-"Laut [Smith2020] ist Machine Learning..."
-```
-
-### Schritt 3: Makro ausführen
-
-1. Drücken Sie `Alt + F8`
-2. Wählen Sie `UpdateReferences`
-3. Klicken Sie auf `Ausführen`
-
-### Ergebnis
-
-- Alle Zitationen werden durch Nummern ersetzt: `[1]`, `[2]`, etc.
-- Eine Literaturverzeichnis-Folie wird am Ende erstellt
-- Gleiche Quellen erhalten die gleiche Nummer
-
-## Beispiel
-
-**Vorher:**
-```
-Folie 1: "Machine Learning [Smith2020] ist wichtig"
-Folie 2: "Weitere Studien [Jones2021] und [Smith2020] zeigen..."
+"According to [Smith2020], machine learning is..."
 ```
 
-**Nachher:**
-```
-Folie 1: "Machine Learning [1] ist wichtig"
-Folie 2: "Weitere Studien [2] und [1] zeigen..."
+### Step 3: Run Macro
 
-Literaturverzeichnis-Folie:
+1. Press `Alt + F8`.
+2. Select `UpdateReferences`.
+3. Click `Run`.
+
+### Result
+
+- All citations are replaced by numbers: `[1]`, `[2]`, etc.
+- A bibliography slide is created at the end.
+- Identical sources receive the same number.
+
+## Example
+
+**Before:**
+```
+Slide 1: "Machine Learning [Smith2020] is important"
+Slide 2: "Other studies [Jones2021] and [Smith2020] show..."
+```
+
+**After:**
+```
+Slide 1: "Machine Learning [1] is important"
+Slide 2: "Other studies [2] and [1] show..."
+
+Bibliography Slide:
 [1] Smith, J. et al. (2020). Machine Learning Fundamentals. IEEE Transactions on Neural Networks.
 [2] Jones, A. & Brown, B. (2021). Advanced AI Techniques in Modern Computing. Nature Machine Intelligence.
 ```
 
-## Anpassungen
+## Customizations
 
-### Zitationsformat ändern
+### Change Citation Format
 
-In der Funktion `ProcessTextContent()` können Sie das Regex-Pattern anpassen:
+In the `ProcessTextContent()` function, you can adjust the Regex pattern:
 
 ```vba
-' Aktuell: [SourceID]
+' Current: [SourceID]
 regex.Pattern = "\[([A-Za-z0-9]+)\]"
 
 ' Alternative: (SourceID)
 regex.Pattern = "\(([A-Za-z0-9]+)\)"
 ```
 
-### Externe Quelldatei verwenden
+### Use External Source File
 
-Sie können die Quellen auch aus einer CSV-Datei laden. Beispiel-Code:
+You can also load sources from a CSV file. Example Code:
 
 ```vba
 Private Sub LoadSourceRegistryFromFile()
@@ -83,7 +83,7 @@ Private Sub LoadSourceRegistryFromFile()
     Dim line As String
     Dim parts() As String
     
-    filePath = "C:\Pfad\zu\sources.csv"
+    filePath = "C:\Path\to\sources.csv"
     fileNum = FreeFile
     
     Open filePath For Input As fileNum
@@ -99,13 +99,13 @@ Private Sub LoadSourceRegistryFromFile()
 End Sub
 ```
 
-## Fehlerbehebung
+## Troubleshooting
 
-**Problem**: "Unknown citation" Warnung im Debug-Fenster  
-**Lösung**: Fügen Sie die fehlende Quelle in `LoadSourceRegistry()` hinzu
+**Issue**: "Unknown citation" warning in Debug window  
+**Solution**: Add the missing source to `LoadSourceRegistry()`.
 
-**Problem**: Makro funktioniert nicht  
-**Lösung**: Stellen Sie sicher, dass Makros aktiviert sind (`Datei` → `Optionen` → `Trust Center`)
+**Issue**: Macro does not work  
+**Solution**: Ensure macros are enabled (`File` → `Options` → `Trust Center`).
 
-**Problem**: Formatierung geht verloren  
-**Lösung**: Das Makro ersetzt nur den Text, Formatierung sollte erhalten bleiben. Falls nicht, kontaktieren Sie den Support.
+**Issue**: Formatting is lost  
+**Solution**: The macro only replaces the text; formatting should be preserved. If not, contact support.
