@@ -168,11 +168,13 @@ Private Sub LoadSourcesFromBibFile(ByVal filePath As String)
             
             ' Save previous source if exists
             If Not currentSource Is Nothing And Len(currentID) > 0 Then
-                ' Add basic fallback fields if missing
-                If Not currentSource.Exists("Author") Then currentSource("Author") = "Unknown"
-                If Not currentSource.Exists("Year") Then currentSource("Year") = "????"
-                If Not currentSource.Exists("Title") Then currentSource("Title") = "No Title"
+                ' Initialize missing fields with empty strings instead of "Unknown"
+                If Not currentSource.Exists("Author") Then currentSource("Author") = ""
+                If Not currentSource.Exists("Year") Then currentSource("Year") = ""
+                If Not currentSource.Exists("Title") Then currentSource("Title") = ""
                 If Not currentSource.Exists("Journal") Then currentSource("Journal") = ""
+                If Not currentSource.Exists("URL") Then currentSource("URL") = ""
+                If Not currentSource.Exists("Note") Then currentSource("Note") = ""
                 
                 Set sourceRegistry(currentSource("ID")) = currentSource
             End If
@@ -203,10 +205,20 @@ Private Sub LoadSourcesFromBibFile(ByVal filePath As String)
                         currentSource("Title") = fieldValue
                     Case "journal", "booktitle", "publisher"
                         currentSource("Journal") = fieldValue
+                    Case "url"
+                        currentSource("URL") = fieldValue
+                    Case "note", "howpublished"
+                        currentSource("Note") = fieldValue
                 End Select
             ElseIf InStr(line, "}") > 0 And Trim(line) = "}" Then
                 ' End of entry (simple heuristic)
                 If Not currentSource Is Nothing Then
+                    If Not currentSource.Exists("Author") Then currentSource("Author") = ""
+                    If Not currentSource.Exists("Year") Then currentSource("Year") = ""
+                    If Not currentSource.Exists("Title") Then currentSource("Title") = ""
+                    If Not currentSource.Exists("Journal") Then currentSource("Journal") = ""
+                    If Not currentSource.Exists("URL") Then currentSource("URL") = ""
+                    If Not currentSource.Exists("Note") Then currentSource("Note") = ""
                     Set sourceRegistry(currentSource("ID")) = currentSource
                     Set currentSource = Nothing
                 End If
@@ -216,6 +228,12 @@ Private Sub LoadSourcesFromBibFile(ByVal filePath As String)
     
     ' Add last source if file ended
     If Not currentSource Is Nothing Then
+        If Not currentSource.Exists("Author") Then currentSource("Author") = ""
+        If Not currentSource.Exists("Year") Then currentSource("Year") = ""
+        If Not currentSource.Exists("Title") Then currentSource("Title") = ""
+        If Not currentSource.Exists("Journal") Then currentSource("Journal") = ""
+        If Not currentSource.Exists("URL") Then currentSource("URL") = ""
+        If Not currentSource.Exists("Note") Then currentSource("Note") = ""
         Set sourceRegistry(currentSource("ID")) = currentSource
     End If
     
@@ -236,7 +254,9 @@ Private Sub AddSource(ByVal sourceID As String, _
                      ByVal author As String, _
                      ByVal year As String, _
                      ByVal title As String, _
-                     ByVal journal As String)
+                     ByVal journal As String, _
+                     Optional ByVal url As String = "", _
+                     Optional ByVal note As String = "")
     ' Create source object
     Dim source As Object
     Set source = CreateObject("Scripting.Dictionary")
@@ -246,6 +266,8 @@ Private Sub AddSource(ByVal sourceID As String, _
     source("Year") = year
     source("Title") = title
     source("Journal") = journal
+    source("URL") = url
+    source("Note") = note
     
     ' Add to registry
     Set sourceRegistry(sourceID) = source
@@ -279,18 +301,96 @@ Private Sub ProcessAllSlides()
 End Sub
 
 Private Sub ProcessSlideShapes(ByVal sld As Slide)
+    Dim sortedShapes As Collection
     Dim shp As Shape
     
-    ' Iterate through all shapes on the slide
-    For Each shp In sld.Shapes
-        ' Check if shape has text
+    ' 1. Collect all processable shapes (recursively unwrapping groups)
+    Set sortedShapes = New Collection
+    Call CollectShapesRecursive(sld.Shapes, sortedShapes)
+    
+    ' 2. Sort shapes spatially (Top-Left to Bottom-Right)
+    Call SortShapesSpatial(sortedShapes)
+    
+    ' 3. Process them in order
+    For Each shp In sortedShapes
         If shp.HasTextFrame Then
             If shp.TextFrame.HasText Then
-                ' Process text content for citations
                 Call ProcessTextContent(shp.TextFrame.TextRange)
             End If
         End If
     Next shp
+End Sub
+
+Private Sub CollectShapesRecursive(ByVal shapes As Object, ByRef targetCollection As Collection)
+    Dim shp As Shape
+    
+    For Each shp In shapes
+        ' Case 1: Shape is a Group -> Recurse
+        If shp.Type = msoGroup Then
+            Call CollectShapesRecursive(shp.GroupItems, targetCollection)
+            
+        ' Case 2: Shape has Text -> Add to Collection
+        ElseIf shp.HasTextFrame Then
+            targetCollection.Add shp
+        End If
+    Next shp
+End Sub
+
+Private Sub SortShapesSpatial(ByRef shapes As Collection)
+    ' Simple Bubble Sort for shapes based on Top then Left
+    ' Note: VBA Collections are not easily sortable, so we dump to array, sort, then rebuild or just iterate array
+    ' Since we consume it immediately, let's keep it as an array if possible, but we used Collection for dynamic sizing.
+    ' Workaround: Sort items within the Collection by creating a new one or using an array swap.
+    ' Let's use an array buffer.
+    
+    If shapes.Count <= 1 Then Exit Sub
+    
+    Dim shapeArray() As Shape
+    ReDim shapeArray(1 To shapes.Count)
+    Dim i As Long, j As Long
+    Dim tempShp As Shape
+    
+    For i = 1 To shapes.Count
+        Set shapeArray(i) = shapes(i)
+    Next i
+    
+    ' Bubble Sort
+    ' Primary Key: Top, Secondary Key: Left
+    ' Tolerance for "Same Line": 10 points
+    Dim tolerance As Single
+    tolerance = 10
+    
+    For i = 1 To UBound(shapeArray) - 1
+        For j = i + 1 To UBound(shapeArray)
+            Dim swap As Boolean
+            swap = False
+            
+            ' Check Top position
+            If shapeArray(i).Top > shapeArray(j).Top + tolerance Then
+                swap = True ' i is clearly below j, swap
+            ElseIf Abs(shapeArray(i).Top - shapeArray(j).Top) <= tolerance Then
+                ' Roughly same vertical line, check Left
+                If shapeArray(i).Left > shapeArray(j).Left Then
+                    swap = True ' i is right of j, swap
+                End If
+            End If
+            
+            If swap Then
+                Set tempShp = shapeArray(i)
+                Set shapeArray(i) = shapeArray(j)
+                Set shapeArray(j) = tempShp
+            End If
+        Next j
+    Next i
+    
+    ' Rebuild Collection (optional, or just update the one passed by ref?)
+    ' Actually, ProcessSlideShapes needs to iterate the sorted result.
+    ' Let's clear and re-add to the collection passed by reference to be safe
+    
+    Set shapes = New Collection
+    For i = 1 To UBound(shapeArray)
+        shapes.Add shapeArray(i)
+    Next i
 End Sub
 
 Private Sub ProcessTextContent(ByVal textRange As TextRange)
@@ -309,7 +409,8 @@ Private Sub ProcessTextContent(ByVal textRange As TextRange)
     Set regex = CreateObject("VBScript.RegExp")
     regex.Global = True
     regex.IgnoreCase = False
-    regex.Pattern = "\[([A-Za-z0-9]+)\]"
+    ' Pattern broaded to accept special characters like underscores
+    regex.Pattern = "\[([^\]]+)\]"
     
     ' Find all citations in text
     Set matches = regex.Execute(text)
@@ -503,11 +604,53 @@ Private Sub GenerateBibliographySlide()
         refNum = referenceMap(sourceID)
         Set source = sourceRegistry(sourceID)
         
-        ' Format: [1] Author (Year). Title. Journal.
-        refArray(refNum) = "[" & refNum & "] " & _
-                          source("Author") & " (" & source("Year") & "). " & _
-                          source("Title") & ". " & _
-                          source("Journal") & "."
+        ' Robust Formatting: Only add fields if they exist
+        ' Format: [1] Author (Year). Title. Journal. Note. URL.
+        Dim bibEntry As String
+        bibEntry = "[" & refNum & "] "
+        
+        ' Add Author
+        If Len(source("Author")) > 0 Then
+            bibEntry = bibEntry & source("Author")
+        End If
+        
+        ' Add Year
+        If Len(source("Year")) > 0 Then
+            ' Check if we need space after author
+            If Len(source("Author")) > 0 Then bibEntry = bibEntry & " "
+            bibEntry = bibEntry & "(" & source("Year") & ")."
+        End If
+        
+        ' Add Title
+        If Len(source("Title")) > 0 Then
+            ' Add Space if previous fields exist
+            If Right(bibEntry, 1) <> " " And Right(bibEntry, 1) <> "." Then bibEntry = bibEntry & ". "
+            If Right(bibEntry, 1) = "." Then bibEntry = bibEntry & " "
+            bibEntry = bibEntry & source("Title")
+        End If
+        
+        ' Add Journal
+        If Len(source("Journal")) > 0 Then
+            If Right(bibEntry, 1) <> "." Then bibEntry = bibEntry & "."
+            bibEntry = bibEntry & " " & source("Journal")
+        End If
+        
+        ' Add Note
+        If Len(source("Note")) > 0 Then
+            If Right(bibEntry, 1) <> "." Then bibEntry = bibEntry & "."
+            bibEntry = bibEntry & " " & source("Note")
+        End If
+        
+        ' Add URL
+        If Len(source("URL")) > 0 Then
+            If Right(bibEntry, 1) <> "." Then bibEntry = bibEntry & "."
+            bibEntry = bibEntry & " Available at: " & source("URL")
+        End If
+        
+        ' Final cleanup (ensure closing dot)
+        If Right(bibEntry, 1) <> "." Then bibEntry = bibEntry & "."
+        
+        refArray(refNum) = bibEntry
     Next sourceID
     
     ' Combine into single text
