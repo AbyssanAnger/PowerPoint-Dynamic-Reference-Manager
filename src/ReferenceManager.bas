@@ -27,6 +27,10 @@ Public Sub OnBtnUpdateReferences(control As IRibbonControl)
     Call UpdateReferences
 End Sub
 
+Public Sub OnBtnDonate(control As IRibbonControl)
+    ActivePresentation.FollowHyperlink "https://paypal.me/ThatDudeSebastian?locale.x=de_DE&country.x=DE"
+End Sub
+
 Public Sub OnBtnResetHistory(control As IRibbonControl)
     Call ResetCitationHistory
 End Sub

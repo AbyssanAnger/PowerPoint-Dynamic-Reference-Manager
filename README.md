@@ -109,3 +109,10 @@ End Sub
 
 **Issue**: Formatting is lost  
 **Solution**: The macro only replaces the text; formatting should be preserved. If not, contact support.
+
+## About & Support
+
+This project is open source. I love to hear feedback and will implement improvements when possible.
+
+If you find this tool helpful and want to support its development:
+[Donate via PayPal](https://paypal.me/ThatDudeSebastian?locale.x=de_DE&country.x=DE)

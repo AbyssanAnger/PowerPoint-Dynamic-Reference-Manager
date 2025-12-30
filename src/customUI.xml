@@ -6,6 +6,11 @@
           <button id="btnUpdate" label="Generate Bibliography" imageMso="DropCapOptionsDialog" size="large" onAction="OnBtnUpdateReferences" supertip="Scan slides, update citation numbers, and generate bibliography." />
           <button id="btnReset" label="Reset References" imageMso="Refresh" size="large" onAction="OnBtnResetHistory" supertip="Clear all stored reference numbers to allow fresh re-numbering." />
         </group>
+        <group id="grpAbout" label="About">
+          <labelControl id="lblAppVer" label="Ver: 1.0.0" />
+          <labelControl id="lblAuthor" label="By Sebastian Redemann" />
+          <button id="btnDonate" label="Donate via PayPal" imageMso="InternationalCurrency" onAction="OnBtnDonate" supertip="This tool is Open Source. Feedback is welcome!" />
+        </group>
       </tab>
     </tabs>
   </ribbon>
