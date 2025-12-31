@@ -2,13 +2,11 @@
 
 ## Installation
 
-1. **Open PowerPoint** and load your presentation.
-2. **Open VBA Editor**: Press `Alt + F11`.
-3. **Import Module**:
-   - `File` → `Import File...`
-   - Select `ReferenceManager.bas`
-   - Click `Open`
+1. Download the "Dynamic_References_Manager.ppam" File from the "Add-In"-Folder inside of the repository.
+2. Drag the Add-In File: "Dynamic_References_Manager.ppam" into the Microsoft Add-In Folder: "C:\Users\User\AppData\Roaming\Microsoft\AddIns" 
+3. **Open PowerPoint** go into "Options" => "Add-Ins" => "Manage: PowerPoint-Add-Ins" => "Go" and choose "Dynamic_References_Manager.ppam".
 
+3. 
 ## Usage
 
 ### Step 1: Load Sources
