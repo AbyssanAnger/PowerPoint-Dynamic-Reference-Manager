@@ -8,7 +8,7 @@ As engineers and researchers, we love BibTeX for LaTeX, but PowerPoint makes cit
 
 I decided to fix this.
 
-🚀 Introducing **PowerPoint Dynamic Reference Manager** – a free, open-source Add-In I built to bring the power of BibTeX to PowerPoint.
+🚀 Introducing **PowerPoint Dynamic References** – a free, open-source Add-In I built to bring the power of BibTeX to PowerPoint.
 
 **Key Features:**
 

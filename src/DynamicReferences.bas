@@ -1,6 +1,6 @@
 Attribute VB_Name = "ReferenceManager"
 ' ============================================================================
-' PowerPoint Dynamic Reference Manager
+' PowerPoint Dynamic References
 ' ============================================================================
 ' Automatically manages citations and generates bibliography slides
 ' Based on the UpdateReferences flowchart design
