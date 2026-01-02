@@ -9,6 +9,7 @@
         <group id="grpAbout" label="About">
           <labelControl id="lblAppVer" label="Ver: 1.0.0" />
           <labelControl id="lblAuthor" label="By Sebastian Redemann" />
+          <button id="btnGitHub" label="View on GitHub" imageMso="BlogHomePage" onAction="OnBtnGitHub" supertip="Visit the project on GitHub for documentation and updates." />
           <button id="btnDonate" label="Donate via PayPal" imageMso="InternationalCurrency" onAction="OnBtnDonate" supertip="This tool is Open Source. Feedback is welcome!" />
         </group>
       </tab>

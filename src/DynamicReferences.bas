@@ -31,6 +31,10 @@ Public Sub OnBtnDonate(control As IRibbonControl)
     ActivePresentation.FollowHyperlink "https://paypal.me/ThatDudeSebastian?locale.x=de_DE&country.x=DE"
 End Sub
 
+Public Sub OnBtnGitHub(control As IRibbonControl)
+    ActivePresentation.FollowHyperlink "https://github.com/ThatDudeSebastian/PowerPoint-Dynamic-References"
+End Sub
+
 Public Sub OnBtnResetHistory(control As IRibbonControl)
     Call ResetCitationHistory
 End Sub

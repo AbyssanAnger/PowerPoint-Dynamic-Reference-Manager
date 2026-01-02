@@ -1,4 +1,4 @@
-![PowerPoint Dynamic References Logo](Logo/Dynamic_References_Logo.png)
+<img src="Logo/Dynamic_References_Logo.png" alt="PowerPoint Dynamic References Logo" width="400">
 
 [![Support me](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://paypal.me/ThatDudeSebastian?locale.x=de_DE&country.x=DE)
 [![Feedback](https://img.shields.io/badge/Feedback-Welcome-green.svg)](https://github.com/AbyssanAnger/PowerPoint-Dynamic-Reference-Manager/issues)
@@ -23,8 +23,6 @@ renumbering or formatting.
 - [Installation](#installation)
 - [Building](#building)
 - [Known limitations](#known-limitations)
-- [References](#references)
-- [Acknowledgments](#acknowledgments)
 - [Troubleshooting](#troubleshooting)
 
 ---
